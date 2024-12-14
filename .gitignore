@@ -10,3 +10,8 @@ ProjectLibrary.includes
 *.creator
 *.includes
 
+# Build directories
+build/
+debug/
+release/
+cmake-build-*/

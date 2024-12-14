@@ -1,3 +1,6 @@
+/*
+ * The library class contains the core of the library functionalities
+*/
 #pragma once
 #include <vector>
 #include <string>
