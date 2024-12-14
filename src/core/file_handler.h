@@ -1,11 +1,16 @@
-#ifndef FILE_HANDLER_H
-#define FILE_HANDLER_H
+#pragma once
+#include <string>
+#include <vector>
+#include "../models/book.h"
 
-
-class file_handler
-{
+class FileHandler {
 public:
-    file_handler();
-};
+    // Static methods for file operations
+    static bool saveToFile(const std::string& filename, const std::vector<Book>& books, int nextId);
+    static bool loadFromFile(const std::string& filename, std::vector<Book>& books, int& nextId);
 
-#endif // FILE_HANDLER_H
+private:
+    // Helper methods
+    static std::string bookToString(const Book& book);
+    static Book stringToBook(const std::string& str);
+};
