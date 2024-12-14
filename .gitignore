@@ -1,0 +1,12 @@
+# QtCreator specific files
+ProjectLibrary.creator.user
+ProjectLibrary.config
+ProjectLibrary.files
+ProjectLibrary.creator
+ProjectLibrary.includes
+*.creator.user
+*.config
+*.files
+*.creator
+*.includes
+
