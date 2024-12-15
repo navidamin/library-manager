@@ -1,22 +1,28 @@
 #include "file_handler.h"
-#include <fstream>
-#include <sstream>
 
-bool FileHandler::saveToFile(const std::string& filename, const std::vector<Book>& books, int nextId) {
+using json = nlohmann::json;
+
+bool FileHandler::saveToFile(const std::string& filename, const std::vector<Book>& books, int nextBookId) {
     try {
+        json j;
+        j["nextBookId"] = nextBookId;
+        j["books"] = json::array();
+
+        for (const auto& book : books) {
+            json bookJson;
+            bookJson["id"] = book.getBookId();
+            bookJson["title"] = book.getTitle();
+            bookJson["author"] = book.getAuthor();
+            bookJson["year"] = book.getYear();
+            bookJson["available"] = book.isAvailable();
+            j["books"].push_back(bookJson);
+        }
+
         std::ofstream file(filename);
         if (!file) {
             return false;
         }
-
-        // Write next ID first
-        file << nextId << '\n';
-
-        // Write each book on a new line
-        for (const Book& book : books) {
-            file << bookToString(book) << '\n';
-        }
-
+        file << j.dump(4);  // Pretty print with 4 spaces indentation
         return true;
     }
     catch (...) {
@@ -24,61 +30,32 @@ bool FileHandler::saveToFile(const std::string& filename, const std::vector<Book
     }
 }
 
-bool FileHandler::loadFromFile(const std::string& filename, std::vector<Book>& books, int& nextId) {
+bool FileHandler::loadFromFile(const std::string& filename, std::vector<Book>& books, int& nextBookId) {
     try {
         std::ifstream file(filename);
         if (!file) {
             return false;
         }
 
+        json j;
+        file >> j;
+
         books.clear();
+        nextBookId = j["nextBookId"];
 
-        // Read next ID first
-        std::string line;
-        if (std::getline(file, line)) {
-            nextId = std::stoi(line);
+        for (const auto& bookJson : j["books"]) {
+            Book book(
+                bookJson["title"],
+                bookJson["author"],
+                bookJson["year"]
+            );
+            book.setId(bookJson["id"]);
+            book.setAvailability(bookJson["available"]);
+            books.push_back(book);
         }
-
-        // Read books
-        while (std::getline(file, line)) {
-            if (!line.empty()) {
-                books.push_back(stringToBook(line));
-            }
-        }
-
         return true;
     }
     catch (...) {
         return false;
     }
-}
-
-std::string FileHandler::bookToString(const Book& book) {
-    // Format: id,title,author,year,isAvailable
-    return std::to_string(book.getBookId()) + "," +
-           book.getTitle() + "," +
-           book.getAuthor() + "," +
-           std::to_string(book.getYear()) + "," +
-           (book.isAvailable() ? "1" : "0");
-}
-
-Book FileHandler::stringToBook(const std::string& str) {
-    std::stringstream ss(str);
-    std::string item;
-    std::vector<std::string> parts;
-
-    // Split the string by commas
-    while (std::getline(ss, item, ',')) {
-        parts.push_back(item);
-    }
-
-    if (parts.size() >= 5) {
-        Book book(parts[1], parts[2], std::stoi(parts[3]));
-        book.setId(std::stoi(parts[0]));
-        book.setAvailability(parts[4] == "1");
-        return book;
-    }
-
-    // Return a default book if string parsing fails
-    return Book("", "", 0);
 }
