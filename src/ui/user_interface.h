@@ -1,7 +1,7 @@
-/*
- * This the interface for user interface
- * the basis for diffrent UI types: terminal, qt, ...
-*/
+/**
+ * @file user_interface.h
+ * @brief Implementation of the UI Interface calss
+ */
 
 #pragma once
 #include <string>
